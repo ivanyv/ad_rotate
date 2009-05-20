@@ -57,3 +57,4 @@ class Ad
     end
   end
 end
+
