@@ -1,11 +1,17 @@
-module AdRotate
-  attr_accessor_with_default :ads_path, 'app/ads'
-
-  def full_ads_path
-    File.join(RAILS_ROOT, AdRotate.ads_path)
+class AdRotate
+  def self.ads_path
+    @@ads_path ||= 'app/ads'
   end
   
-  def get_ad_layout(layout)
+  def self.ads_path=(path)
+    @@ads_path = path
+  end
+
+  def self.full_ads_path
+    File.join(RAILS_ROOT, self.ads_path)
+  end
+  
+  def self.get_ad_layout(layout)
     filename = File.join(full_ads_path, layout.to_s) + '.rb'
     filename = File.join(full_ads_path, 'all.rb') unless File.exists?(filename)
     filename
