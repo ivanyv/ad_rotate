@@ -29,6 +29,14 @@ class AdRotate
   end
 
   class Ad
+    def self.read_from(filename)
+      File.read AdRotate.full_ads_path + "/#{filename}"
+    end
+
+    def self.load_from(filename)
+      eval self.read_from(filename)
+    end
+
     def initialize(placement)
       @slots = placement
     end

@@ -1,6 +1,5 @@
 # Use this file to define your ad layouts, placements, and arrangements.
-# You can also use Ruby's methods to load up an ad, like File.read,
-# just make sure you return the Hash for the ads at the end of this file.
+# You can also use a utility method to load ad files: AdRotate::Ad.load_from('filename')
 
 { :ad_layout_a =>
   { :placement_x =>
