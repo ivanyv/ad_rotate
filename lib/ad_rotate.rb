@@ -1,59 +1,46 @@
-class Layouts
-  def self.get(layout)
-    { :car =>
-      { :image_strip =>
-          { :left   => [ 'left1', 'left2' ],
-            :center => 'center',
-            :right  => [ 'righta', 'rightb']
-          },
-        :with_block =>
-          { :blocks =>
-              { :first  => 'first',
-                :second => 'second',
-                :third  => 'third',
-                :fourth => 'fourth',
-                :fifth  => 'fifth',
-                :sixth  => 'sixth',
-              },
-            :big_ad =>
-              { :left   => 'BIGLEFT',
-                :center => 'BIGCENTER',
-                :right  => 'BIGRIGHT'
-              }
-          }
-      }
-    }[layout]
-  end
-end
+module AdRotate
+  attr_accessor_with_default :ads_path, 'app/ads'
 
-class AdLayout
-  def initialize(layout)
-    @layout = Layouts.get(layout)
+  def full_ads_path
+    File.join(RAILS_ROOT, AdRotate.ads_path)
+  end
+  
+  def get_ad_layout(layout)
+    filename = File.join(full_ads_path, layout.to_s) + '.rb'
+    filename = File.join(full_ads_path, 'all.rb') unless File.exists?(filename)
+    filename
   end
 
-  def ad_rotate(placement)
-    yield Ad.new(@layout[placement])
-  end
-end
-
-class Ad
-  def initialize(placement)
-    @slots = placement
-  end
-
-  def rotate(slot)
-    unless @slot
-      @slot = @slots.keys.rand
-      @ad = @slots[@slot].is_a?(Array) ? @slots[@slot].rand : @slots[@slot]
+  class AdLayout
+    def initialize(layout)
+      layout_file = File.read(AdRotate.get_ad_layout(layout))
+      @layout = eval(layout_file)[layout]
     end
 
-    if block_given?
-      if slot == @slot && !@arrangement_selected
-        @arrangement_selected = true
-        yield Ad.new(@ad)
+    def rotator(placement)
+      yield Ad.new(@layout[placement])
+    end
+  end
+
+  class Ad
+    def initialize(placement)
+      @slots = placement
+    end
+
+    def rotate(slot)
+      unless @slot
+        @slot = @slots.keys.rand
+        @ad = @slots[@slot].is_a?(Array) ? @slots[@slot].rand : @slots[@slot]
       end
-    else
-      return @ad if slot == @slot
+
+      if block_given?
+        if slot == @slot && !@arrangement_selected
+          @arrangement_selected = true
+          yield Ad.new(@ad)
+        end
+      else
+        return @ad if slot == @slot
+      end
     end
   end
 end
