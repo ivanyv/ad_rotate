@@ -1,13 +1,91 @@
 AdRotate
 ========
 
-Introduction goes here.
+This library will help you rotate a set of ad placements and the ads themselves.
 
+Suppose on your front page you want to test which ad position performs better:
 
-Example
+First, in your controller:
+
+@ad_layout = AdRotate::AdLayout.new(:default)
+
+Then, in the view:
+
+<% @ad_layout.rotator :front_page do |ad| %>
+  <%= ad.rotate :first %>
+  <p>Some content here</p>
+  <%= ad.rotate :second %>
+  <p>Some content here</p>
+  <%= ad.rotate :last %>
+<% end %>
+
+What this will do, is that while the two "Ps" will always be rendered, only one
+of the three ads will be shown at random on each request. How are those ads defined?
+
+# app/ads/default.rb
+{ :default =>
+    { :front_page =>
+        { :first  => 'This is an advertisement.',
+          :second => [ 'You can even use an array', 'And the ads in it will be rotated too' ],
+          :last   => 'Another advertisement'
+        }
+    }
+}
+
+What if you want to test different sets of ads and their surrounding content is different?
+
+<% @ad_layout.rotator :front_page do |arrangement| %>
+  <% arrangement.rotate :small_buttons do |ad| %>
+    <%= ad.rotate :first %>
+    <p>Some content here</p>
+    <%= ad.rotate :second %>
+    <p>Some content here</p>
+    <%= ad.rotate :last %>
+  <% end %>
+  
+  <% arrangement.rotate :big_button do |ad| %>
+    <%= ad.rotate :left %>
+    <p class="big">Content that has a big ad to the left or the right</p>
+    <%= ad.rotate :right %>
+  <% end %>
+<% end %>
+
+And the ads file would look something like this:
+
+# app/ads/default.rb
+{ :default =>
+    { :front_page =>
+        { :small_buttons =>
+            { :first  => 'This is an advertisement.',
+              :second => [ 'You can even use an array', 'And the ads in it will be rotated too' ],
+              :last   => 'Another advertisement'
+            },
+          :big_button =>
+            { :left => 'Big bad button to the left',
+              :right => 'And now to the right'
+            }
+        }
+    }
+}
+
+I've been using strings in the ads for simplicity, but in reality, you'll probably want to load the ads
+from files, which could be accomplished like this:
+
+# app/ads/default.rb
+{ :default =>
+    { :front_page =>
+        { :first  => AdRotate::Ad.read_from('default_front_page_first.html'),
+        ...
+
+Which will load the file from "app/ads/default_front_page_first.html". You can also use "load_from" instead,
+and the code from the file will be "eval'ed".
+
+To define where ad files and layouts are loaded from, use the AdRotate.ads_path= method.
+
+License
 =======
 
-Example goes here.
+This work is licensed under the Creative Commons Attribution 2.5 Mexico License.
+To view a copy of this license, visit http://creativecommons.org/licenses/by/2.5/mx/
+or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
 
-
-This work is licensed under the Creative Commons Attribution 2.5 Mexico License. To view a copy of this license, visit http://creativecommons.org/licenses/by/2.5/mx/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
