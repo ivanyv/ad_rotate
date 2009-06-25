@@ -26,6 +26,10 @@ class AdRotate
     def rotator(placement)
       yield Ad.new(@layout[placement])
     end
+
+    def rotate(ad)
+      Ad.new(@layout[ad]).rotate
+    end
   end
 
   class Ad
@@ -41,7 +45,9 @@ class AdRotate
       @slots = placement
     end
 
-    def rotate(slot)
+    def rotate(slot = nil)
+      return @slots.rand if slot.nil? && @slots.is_a?(Array)
+      
       unless @slot
         @slot = @slots.keys.rand
         @ad = @slots[@slot].is_a?(Array) ? @slots[@slot].rand : @slots[@slot]
